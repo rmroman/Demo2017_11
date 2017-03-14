@@ -101,7 +101,7 @@ public class Personaje extends Objeto
                 // Ejecutar movimiento horizontal
                 nuevaX += VELOCIDAD_X;
                 // Prueba que no salga del mundo por la derecha
-                if (nuevaX <= PantallaMapa.ANCHO_MAPA - sprite.getWidth()) {
+                if (nuevaX <= PantallaMario.ANCHO_MAPA - sprite.getWidth()) {
                     sprite.setX(nuevaX);
                 }
             }

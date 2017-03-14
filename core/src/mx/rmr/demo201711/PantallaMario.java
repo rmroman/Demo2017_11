@@ -26,7 +26,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
  * Created by roberto on 21/02/17.
  */
 
-public class PantallaMapa extends Pantalla
+public class PantallaMario extends Pantalla
 {
     public static final int ANCHO_MAPA = 2560;
     public static final int ALTO_MAPA = 800;
@@ -55,7 +55,7 @@ public class PantallaMapa extends Pantalla
     // AssetManager
     private AssetManager manager;
 
-    public PantallaMapa(Demo juego) {
+    public PantallaMario(Demo juego) {
         this.juego = juego;
         manager = juego.getAssetManager();
     }

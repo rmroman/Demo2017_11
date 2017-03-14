@@ -9,6 +9,6 @@ public class WhackAMole extends Game
 {
 	@Override
 	public void create () {
-		//setScreen(new PantallaMapa(this));
+		//setScreen(new PantallaMario(this));
 	}
 }

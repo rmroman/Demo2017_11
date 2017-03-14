@@ -99,7 +99,7 @@ class PantallaCargando extends Pantalla
                     juego.setScreen(new PantallaMenu(juego));   // 100% de carga
                     break;
                 case NIVEL_MARIO:
-                    juego.setScreen(new PantallaMapa(juego));   // 100% de carga
+                    juego.setScreen(new PantallaMario(juego));   // 100% de carga
                     break;
             }
 
