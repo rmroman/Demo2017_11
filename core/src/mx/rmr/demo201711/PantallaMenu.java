@@ -53,7 +53,7 @@ class PantallaMenu extends Pantalla
         Texture texturaMarioNormal = manager.get("menu/btnJugarMario.png");
         Texture texturaMarioPresionado = manager.get("menu/btnJugarMarioP.png");
         ImageButton btnPlayMario = crearBoton(texturaMarioNormal, texturaMarioPresionado);
-        btnPlayMario.setPosition(ANCHO/2-btnPlayMario.getWidth()/2, 2*ALTO/3);
+        btnPlayMario.setPosition(ANCHO/2-btnPlayMario.getWidth()/2, 3*ALTO/4);
         btnPlayMario.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -67,7 +67,7 @@ class PantallaMenu extends Pantalla
         Texture texturaRunnerNormal = manager.get("menu/btnJugarRunner.png");
         Texture texturaRunnerPresionado = manager.get("menu/btnJugarRunnerP.png");
         ImageButton btnPlayRunner = crearBoton(texturaRunnerNormal, texturaRunnerPresionado);
-        btnPlayRunner.setPosition(ANCHO/2-btnPlayRunner.getWidth()/2, ALTO/3);
+        btnPlayRunner.setPosition(ANCHO/2-btnPlayRunner.getWidth()/2, ALTO/2);
         btnPlayRunner.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -76,6 +76,21 @@ class PantallaMenu extends Pantalla
             }
         });
         escena.addActor(btnPlayRunner);
+        // Botón WhackAMole
+        // Carga las texturas desde el assetManager 'global'
+        Texture texturaWhackNormal = manager.get("menu/btnJugarWhackAMole.png");
+        Texture texturaWhackNormalPresionado = manager.get("menu/btnJugarWhackAMoleP.png");
+        ImageButton btnPlayWhack = crearBoton(texturaWhackNormal, texturaWhackNormalPresionado);
+        btnPlayWhack.setPosition(ANCHO/2-btnPlayWhack.getWidth()/2, ALTO/4);
+        btnPlayWhack.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                // Iniciar juego Mario
+                juego.setScreen(new PantallaCargando(juego, Pantallas.NIVEL_WHACK_A_MOLE));
+            }
+        });
+        escena.addActor(btnPlayWhack);
     }
 
     private ImageButton crearBoton(Texture texturaNormal, Texture texturaPresionado) {

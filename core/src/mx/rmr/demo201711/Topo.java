@@ -1,6 +1,8 @@
 package mx.rmr.demo201711;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 
@@ -12,17 +14,40 @@ public class Topo extends Objeto
     private EstadoTopo estado;
 
     // Movimiento
-    private float vy = 40;   // velocidad en y (pixeles por segundo)
+    private float vy = 20;   // velocidad en y (pixeles por segundo)
     private float alturaActual; // El tamaño real actual (cambiando)
     private float alturaOriginal;   // Altura inicial (no cambia)
     private float tiempoEscondido;
     private float tiempoAtontado;
 
+    private Texture texturaEstrellas;   // Golpeado
+
+    private boolean seEscondio = false;
+
+    public void setTexturaEstrellas(Texture texturaEstrellas) {
+        this.texturaEstrellas = texturaEstrellas;
+    }
+
     public Topo(Texture textura, float x, float y) {
         super(textura, x, y);
-        estado = EstadoTopo.BAJANDO;
-        alturaActual = sprite.getHeight();
+        if (MathUtils.randomBoolean()) {
+            estado = EstadoTopo.BAJANDO;
+            alturaActual = sprite.getHeight();
+        } else {
+            estado = EstadoTopo.SUBIENDO;
+            alturaActual = 5;
+        }
         alturaOriginal = sprite.getHeight();
+    }
+
+    @Override
+    public void dibujar(SpriteBatch batch) {
+        super.dibujar(batch);
+        if (estado==EstadoTopo.ATONTADO) {
+            batch.draw(texturaEstrellas,
+                    sprite.getX()+sprite.getWidth()/2-texturaEstrellas.getWidth()/2,
+                    sprite.getY()+sprite.getHeight()/2-texturaEstrellas.getHeight()/2);
+        }
     }
 
     // Actualiza la posición del objeto (tamaño, subiendo y bajando)
@@ -32,8 +57,10 @@ public class Topo extends Objeto
                 alturaActual -= delta*vy;
                 if (alturaActual<=0) {
                     alturaActual = 0;
-                    tiempoEscondido = MathUtils.random(0.2f,1.5f);
+                    tiempoEscondido = MathUtils.random(0.1f,1.5f);
                     estado = EstadoTopo.ESCONDIDO;
+                    // Se escapó del usuario!
+                    seEscondio = true;
                 }
                 break;
             case SUBIENDO:
@@ -47,9 +74,13 @@ public class Topo extends Objeto
                 tiempoEscondido -= delta;
                 if (tiempoEscondido<=0) {
                     estado = EstadoTopo.SUBIENDO;
+                    seEscondio = false;
+                    // Aumenta la velocidad
+                    vy *= 1.2f;
                 }
                 break;
             case ATONTADO:
+                sprite.setScale(sprite.getScaleX()/1.1f);
                 sprite.rotate(10);
                 tiempoAtontado -= delta;
                 if (tiempoAtontado<=0) {
@@ -57,6 +88,7 @@ public class Topo extends Objeto
                     estado = EstadoTopo.ESCONDIDO;
                     sprite.setRotation(0);
                     alturaActual = 0;
+                    sprite.setScale(1);
                 }
         }
 
@@ -65,17 +97,40 @@ public class Topo extends Objeto
         sprite.setSize(sprite.getWidth(), alturaActual);
     }
 
+    @Override
     public boolean contiene(Vector3 v) {
-        float x = v.x;
-        float y = v.y;
-
-        return x>=sprite.getX() && x<=sprite.getX()+sprite.getWidth()
-                && y>=sprite.getY() && y<=sprite.getY()+sprite.getHeight();
+        if (estado==EstadoTopo.BAJANDO || estado==EstadoTopo.SUBIENDO) {
+            return super.contiene(v);
+        }
+        return false;
     }
 
     public void desaparecer() {
-        //alturaActual = 0;
-        tiempoAtontado = MathUtils.random(0.2f,1.5f);
+        tiempoAtontado = MathUtils.random(0.1f,1.5f);
         estado = EstadoTopo.ATONTADO;
+    }
+
+    public EstadoTopo getEstado() {
+        return estado;
+    }
+
+    public boolean seHaEscondido() {
+        if (seEscondio) {
+            seEscondio = false;
+            return true;
+        }
+        return false;
+    }
+
+    public void reset() {
+        seEscondio = false;
+        vy = 20;
+        if (MathUtils.randomBoolean()) {
+            estado = EstadoTopo.BAJANDO;
+            alturaActual = alturaOriginal;
+        } else {
+            estado = EstadoTopo.SUBIENDO;
+            alturaActual = 0;
+        }
     }
 }

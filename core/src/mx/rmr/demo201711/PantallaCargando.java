@@ -24,7 +24,7 @@ class PantallaCargando extends Pantalla
 
     private Demo juego;
     private Pantallas siguientePantalla;
-    private int avance;
+    private int avance; // % de carga
     private Texto texto;
 
     private Texture texturaCargando;
@@ -54,7 +54,23 @@ class PantallaCargando extends Pantalla
             case NIVEL_MARIO:
                 cargarRecursosMario();
                 break;
+            case NIVEL_WHACK_A_MOLE:
+                cargarRecursosWhackAMole();
+                break;
         }
+    }
+
+    private void cargarRecursosWhackAMole() {
+        manager.load("whackamole/fondoPasto.jpg", Texture.class);
+        manager.load("whackamole/hoyo.png", Texture.class);
+        manager.load("whackamole/mole.png", Texture.class);
+        manager.load("whackamole/estrellasGolpe.png", Texture.class);
+        manager.load("whackamole/mazo.png", Texture.class);
+        manager.load("whackamole/golpe.mp3", Sound.class);
+        manager.load("whackamole/risa.mp3", Sound.class);
+        manager.load("comun/btnPausa.png", Texture.class);
+        manager.load("whackamole/btnSalir.png", Texture.class);
+        manager.load("whackamole/btnReintentar.png", Texture.class);
     }
 
     private void cargarRecursosMario() {
@@ -71,6 +87,8 @@ class PantallaCargando extends Pantalla
         manager.load("menu/btnJugarMarioP.png", Texture.class);
         manager.load("menu/btnJugarRunner.png", Texture.class);
         manager.load("menu/btnJugarRunnerP.png", Texture.class);
+        manager.load("menu/btnJugarWhackAMole.png", Texture.class);
+        manager.load("menu/btnJugarWhackAMoleP.png", Texture.class);
         manager.load("menu/fondo.jpg", Texture.class);
     }
 
@@ -101,8 +119,10 @@ class PantallaCargando extends Pantalla
                 case NIVEL_MARIO:
                     juego.setScreen(new PantallaMario(juego));   // 100% de carga
                     break;
+                case NIVEL_WHACK_A_MOLE:
+                    juego.setScreen(new PantallaWhackAMole(juego));
+                    break;
             }
-
         }
         avance = (int)(manager.getProgress()*100);
     }
