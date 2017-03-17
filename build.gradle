@@ -3,7 +3,6 @@ buildscript {
         mavenLocal()
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.5.0'
@@ -64,6 +63,20 @@ project(":ios") {
     apply plugin: "java"
     apply plugin: "robovm"
 
+    robovm {
+        // Find this value by running:
+        // security find-identity -v -p codesigning
+        iosSignIdentity = "27A7A63A845327C8CA29B964F0BFC4B06F9C1D69"
+        //iosSignIdentity = "6ee10f7f-4244-427d-971c-3608c9e4a8a8"
+
+        // Find this value by reading the files in
+        // ~/Library/MobileDevice/Provisioning Profiles/
+        // and picking the base name of the one corresponding to your
+        // production profile.
+        iosProvisioningProfile = "f537bc03-3d83-4ddf-b3d1-b1cecc1e3178"
+
+        iosSkipSigning = false
+    }
 
     dependencies {
         compile project(":core")

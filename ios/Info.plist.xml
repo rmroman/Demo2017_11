@@ -38,9 +38,10 @@
         <string>armv7</string>
         <string>opengles-2</string>
     </array>
+    <key>UIRequiresFullScreen</key>
+    <true/>
     <key>UISupportedInterfaceOrientations</key>
     <array>
-        <string>UIInterfaceOrientationPortrait</string>
         <string>UIInterfaceOrientationLandscapeLeft</string>
         <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
@@ -52,6 +53,8 @@
             <array>
                 <string>Icon</string>
                 <string>Icon-72</string>
+                <string>Icon-76</string>
+                <string>Icon-120</string>
             </array>
         </dict>
     </dict>

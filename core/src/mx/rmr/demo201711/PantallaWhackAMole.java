@@ -154,7 +154,9 @@ public class PantallaWhackAMole extends Pantalla
     @Override
     public void render(float delta) {
         // ACTUALIZAR
-        actualizarObjetos(delta);   // mandamos el tiempo para calcular distancia
+        if ( estado==EstadoJuego.JUGANDO) {
+            actualizarObjetos(delta);   // mandamos el tiempo para calcular distancia
+        } // Si está pausado, perdió o ganó NO hace las actualizaciones
         // DIBUJAR
         borrarPantalla();   // Definido en la superclase
         batch.setProjectionMatrix(camara.combined); // Para ajustar la escala con la cámara
@@ -170,7 +172,6 @@ public class PantallaWhackAMole extends Pantalla
             escenaPierde.draw();
         }
     }
-
 
     private void dibujarEstado(SpriteBatch batch) {
         batch.draw(texturaCuadro,0,ALTO-texturaCuadro.getHeight());
@@ -238,6 +239,8 @@ public class PantallaWhackAMole extends Pantalla
         manager.unload("whackamole/fondoPasto.jpg");
         manager.unload("whackamole/hoyo.png");
         manager.unload("whackamole/mole.png");
+        manager.unload("whackamole/btnReintentar.png");
+        manager.unload("whackamole/btnSalir.png");
     }
 
     // Para reintentar el juego
@@ -272,19 +275,26 @@ public class PantallaWhackAMole extends Pantalla
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
             v.set(screenX, screenY, 0);
             camara.unproject(v);
-            for (Objeto obj :
-                    arrTopos) {
-                Topo topo = (Topo) obj;
-                if (topo.contiene(v)) {
-                    // Tocó!!!!
-                    efectoGolpe.play();
-                    if (topo.getEstado()==EstadoTopo.SUBIENDO) {
-                        puntos += PUNTOS_SUBIENDO;
-                    } else {
-                        puntos += PUNTOS_BAJANDO;
+            if ( estado==EstadoJuego.JUGANDO ) {
+                for (Objeto obj :
+                        arrTopos) {
+                    Topo topo = (Topo) obj;
+                    if (topo.contiene(v)) {
+                        // Tocó!!!!
+                        efectoGolpe.play();
+                        if (topo.getEstado() == EstadoTopo.SUBIENDO) {
+                            puntos += PUNTOS_SUBIENDO;
+                        } else {
+                            puntos += PUNTOS_BAJANDO;
+                        }
+                        topo.desaparecer();
                     }
-                    topo.desaparecer();
                 }
+            }
+            // Prueba botón pausa
+            if (btnPausa.contiene(v)) {
+                // Se pausa el juego
+                estado = estado==EstadoJuego.PAUSADO?EstadoJuego.JUGANDO:EstadoJuego.PAUSADO;
             }
             return true;
         }
