@@ -61,7 +61,9 @@ public class PantallaWhackAMole extends Pantalla
     // Estado del juego
     private EstadoJuego estado = EstadoJuego.JUGANDO;
 
+    // Pantallas SECUNDARIAS
     private EscenaPierde escenaPierde;
+    private EscenaPausa escenaPausa;
 
     // Procesador de eventos
     private final Procesador procesadorEntrada = new Procesador();
@@ -170,6 +172,8 @@ public class PantallaWhackAMole extends Pantalla
 
         if (estado==EstadoJuego.PIERDE) {
             escenaPierde.draw();
+        } else if (estado==EstadoJuego.PAUSADO) {
+            escenaPausa.draw();
         }
     }
 
@@ -295,6 +299,13 @@ public class PantallaWhackAMole extends Pantalla
             if (btnPausa.contiene(v)) {
                 // Se pausa el juego
                 estado = estado==EstadoJuego.PAUSADO?EstadoJuego.JUGANDO:EstadoJuego.PAUSADO;
+                if (estado==EstadoJuego.PAUSADO) {
+                    // Activar escenaPausa y pasarle el control
+                    if (escenaPausa==null) {
+                        escenaPausa = new EscenaPausa(vista, batch);
+                    }
+                    Gdx.input.setInputProcessor(escenaPausa);
+                }
             }
             return true;
         }
@@ -338,7 +349,7 @@ public class PantallaWhackAMole extends Pantalla
             TextureRegionDrawable trdSalir = new TextureRegionDrawable(
                     new TextureRegion(texturabtnSalir));
             ImageButton btnSalir = new ImageButton(trdSalir);
-            btnSalir.setPosition(ANCHO/2-btnSalir.getWidth()/2, ALTO*0.6f);
+            btnSalir.setPosition(ANCHO/2-btnSalir.getWidth()/2, ALTO*0.3f);
             btnSalir.addListener(new ClickListener(){
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -354,7 +365,7 @@ public class PantallaWhackAMole extends Pantalla
             TextureRegionDrawable trdReintentar = new TextureRegionDrawable(
                     new TextureRegion(texturabtnReintentar));
             ImageButton btnReintentar = new ImageButton(trdReintentar);
-            btnReintentar.setPosition(ANCHO/2-btnReintentar.getWidth()/2, ALTO*0.3f);
+            btnReintentar.setPosition(ANCHO/2-btnReintentar.getWidth()/2, ALTO*0.6f);
             btnReintentar.addListener(new ClickListener(){
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -363,6 +374,54 @@ public class PantallaWhackAMole extends Pantalla
                     mazos = 5;
                     estado = EstadoJuego.JUGANDO;
                     reiniciarObjetos();
+                    // Regresa el control a la pantalla
+                    Gdx.input.setInputProcessor(procesadorEntrada);
+                }
+            });
+            this.addActor(btnReintentar);
+        }
+    }
+
+    private class EscenaPausa extends Stage
+    {
+        public EscenaPausa(Viewport vista, SpriteBatch batch) {
+            super(vista, batch);
+            // Crear triángulo transparente
+            Pixmap pixmap = new Pixmap((int)(ANCHO*0.7f), (int)(ALTO*0.8f), Pixmap.Format.RGBA8888 );
+            pixmap.setColor( 0.2f, 0, 0.3f, 0.65f );
+            pixmap.fillTriangle(0,pixmap.getHeight(),pixmap.getWidth(),pixmap.getHeight(),pixmap.getWidth()/2,0);
+            Texture texturaTriangulo = new Texture( pixmap );
+            pixmap.dispose();
+            Image imgTriangulo = new Image(texturaTriangulo);
+            imgTriangulo.setPosition(0.15f*ANCHO, 0.1f*ALTO);
+            this.addActor(imgTriangulo);
+
+            // Salir
+            Texture texturabtnSalir = manager.get("whackamole/btnSalir.png");
+            TextureRegionDrawable trdSalir = new TextureRegionDrawable(
+                    new TextureRegion(texturabtnSalir));
+            ImageButton btnSalir = new ImageButton(trdSalir);
+            btnSalir.setPosition(ANCHO/2-btnSalir.getWidth()/2, ALTO*0.2f);
+            btnSalir.addListener(new ClickListener(){
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    // Regresa al menú
+                    juego.setScreen(new PantallaCargando(juego,Pantallas.MENU));
+                }
+            });
+            this.addActor(btnSalir);
+
+            // Continuar
+            Texture texturabtnReintentar = manager.get("whackamole/btnContinuar.png");
+            TextureRegionDrawable trdReintentar = new TextureRegionDrawable(
+                    new TextureRegion(texturabtnReintentar));
+            ImageButton btnReintentar = new ImageButton(trdReintentar);
+            btnReintentar.setPosition(ANCHO/2-btnReintentar.getWidth()/2, ALTO*0.5f);
+            btnReintentar.addListener(new ClickListener(){
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    // Continuar el juego
+                    estado = EstadoJuego.JUGANDO;
                     // Regresa el control a la pantalla
                     Gdx.input.setInputProcessor(procesadorEntrada);
                 }

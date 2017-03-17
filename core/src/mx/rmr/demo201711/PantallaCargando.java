@@ -71,6 +71,7 @@ class PantallaCargando extends Pantalla
         manager.load("comun/btnPausa.png", Texture.class);
         manager.load("whackamole/btnSalir.png", Texture.class);
         manager.load("whackamole/btnReintentar.png", Texture.class);
+        manager.load("whackamole/btnContinuar.png", Texture.class);
     }
 
     private void cargarRecursosMario() {
