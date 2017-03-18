@@ -102,7 +102,7 @@ class PantallaMenu extends Pantalla
 
     private void cargarTexturas() {
         // Carga las texturas desde el assetManager 'global'
-        texturaFondo = manager.get("menu/fondo.jpg");
+        texturaFondo = manager.get("menu/fondoSinFin.jpg");
     }
 
     @Override
@@ -147,6 +147,6 @@ class PantallaMenu extends Pantalla
         manager.unload("menu/btnJugarMarioP.png");
         manager.unload("menu/btnJugarRunner.png");
         manager.unload("menu/btnJugarRunnerP.png");
-        manager.unload("menu/fondo.jpg");
+        manager.unload("menu/fondoSinFin.jpg");
     }
 }

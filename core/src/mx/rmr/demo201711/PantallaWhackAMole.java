@@ -2,6 +2,7 @@ package mx.rmr.demo201711;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -60,6 +61,7 @@ public class PantallaWhackAMole extends Pantalla
 
     // Estado del juego
     private EstadoJuego estado = EstadoJuego.JUGANDO;
+    private int marcadorMayor;  // El marcador mayor del juego
 
     // Pantallas SECUNDARIAS
     private EscenaPierde escenaPierde;
@@ -90,6 +92,14 @@ public class PantallaWhackAMole extends Pantalla
         pixmap.fillRectangle(0, 0, pixmap.getWidth(), pixmap.getHeight());
         texturaCuadro = new Texture( pixmap );
         pixmap.dispose();
+
+        // Marcador más alto
+        cargarMarcadorMayor();
+    }
+
+    private void cargarMarcadorMayor() {
+        Preferences preferencias = Gdx.app.getPreferences("marcador");
+        marcadorMayor = preferencias.getInteger("mayor",0);
     }
 
     /**
@@ -127,12 +137,6 @@ public class PantallaWhackAMole extends Pantalla
      * Carga todas las imágenes que se usarán en esta pantalla
      */
     private void cargarRecursos() {
-        /*
-        ANTES
-        texturaFondo = new Texture("fondoPasto.jpg");
-        texturaHoyo = new Texture("hoyo.png");
-        texturaTopo = new Texture("mole.png");
-        */
         // Con el AssetManager
         texturaFondo = manager.get("whackamole/fondoPasto.jpg");
         texturaHoyo = manager.get("whackamole/hoyo.png");
@@ -187,6 +191,8 @@ public class PantallaWhackAMole extends Pantalla
         texto.mostrarMensaje(batch,"Puntos: "+puntos,2*ANCHO/3,ALTO-texturaMazo.getHeight()/2);
         // Botón pausa
         btnPausa.dibujar(batch);
+        // Dibuja marcador mayor
+        texto.mostrarMensaje(batch,"Marcador mayor: "+marcadorMayor,0.2f*ANCHO,0.07f*ALTO);
     }
 
     // Actualiza la posición de los objetos en pantalla
@@ -245,6 +251,22 @@ public class PantallaWhackAMole extends Pantalla
         manager.unload("whackamole/mole.png");
         manager.unload("whackamole/btnReintentar.png");
         manager.unload("whackamole/btnSalir.png");
+        manager.unload("whackamole/btnContinuar.png");
+        manager.unload("whackamole/estrellasGolpe.png");
+        manager.unload("whackamole/mazo.png");
+        manager.unload("whackamole/golpe.mp3");
+        manager.unload("whackamole/risa.mp3");
+    }
+
+    @Override
+    public void hide() {
+        super.hide();
+        // Guarda el marcador mayor
+        if (puntos>=marcadorMayor) {
+            Preferences preferences = Gdx.app.getPreferences("marcador");
+            preferences.putInteger("mayor", puntos);
+            preferences.flush();
+        }
     }
 
     // Para reintentar el juego
@@ -290,6 +312,9 @@ public class PantallaWhackAMole extends Pantalla
                             puntos += PUNTOS_SUBIENDO;
                         } else {
                             puntos += PUNTOS_BAJANDO;
+                        }
+                        if (puntos>marcadorMayor) {
+                            marcadorMayor = puntos;
                         }
                         topo.desaparecer();
                     }
@@ -382,6 +407,7 @@ public class PantallaWhackAMole extends Pantalla
         }
     }
 
+    // La escena que se muestra cuando el juego se pausa
     private class EscenaPausa extends Stage
     {
         public EscenaPausa(Viewport vista, SpriteBatch batch) {
@@ -397,9 +423,9 @@ public class PantallaWhackAMole extends Pantalla
             this.addActor(imgTriangulo);
 
             // Salir
-            Texture texturabtnSalir = manager.get("whackamole/btnSalir.png");
+            Texture texturaBtnSalir = manager.get("whackamole/btnSalir.png");
             TextureRegionDrawable trdSalir = new TextureRegionDrawable(
-                    new TextureRegion(texturabtnSalir));
+                    new TextureRegion(texturaBtnSalir));
             ImageButton btnSalir = new ImageButton(trdSalir);
             btnSalir.setPosition(ANCHO/2-btnSalir.getWidth()/2, ALTO*0.2f);
             btnSalir.addListener(new ClickListener(){

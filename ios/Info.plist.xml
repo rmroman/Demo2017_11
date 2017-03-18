@@ -45,6 +45,10 @@
         <string>UIInterfaceOrientationLandscapeLeft</string>
         <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
+
+    <key>MinimumOSVersion</key>
+    <string>8.0</string>
+
     <key>CFBundleIcons</key>
     <dict>
         <key>CFBundlePrimaryIcon</key>

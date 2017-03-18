@@ -80,11 +80,11 @@ public class Topo extends Objeto
                 }
                 break;
             case ATONTADO:
-                sprite.setScale(sprite.getScaleX()/1.1f);
-                sprite.rotate(10);
+                sprite.setScale(sprite.getScaleX()/1.05f);
+                sprite.rotate(20);
                 tiempoAtontado -= delta;
                 if (tiempoAtontado<=0) {
-                    tiempoEscondido = MathUtils.random(0.5f,1.5f);
+                    tiempoEscondido = MathUtils.random(0.1f,1.5f);
                     estado = EstadoTopo.ESCONDIDO;
                     sprite.setRotation(0);
                     alturaActual = 0;

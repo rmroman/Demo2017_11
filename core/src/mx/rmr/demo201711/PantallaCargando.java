@@ -90,7 +90,7 @@ class PantallaCargando extends Pantalla
         manager.load("menu/btnJugarRunnerP.png", Texture.class);
         manager.load("menu/btnJugarWhackAMole.png", Texture.class);
         manager.load("menu/btnJugarWhackAMoleP.png", Texture.class);
-        manager.load("menu/fondo.jpg", Texture.class);
+        manager.load("menu/fondoSinFin.jpg", Texture.class);
     }
 
     @Override
