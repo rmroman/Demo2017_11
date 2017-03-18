@@ -73,10 +73,10 @@ public class Topo extends Objeto
             case ESCONDIDO:
                 tiempoEscondido -= delta;
                 if (tiempoEscondido<=0) {
-                    estado = EstadoTopo.SUBIENDO;
                     seEscondio = false;
                     // Aumenta la velocidad
                     vy *= 1.2f;
+                    estado = EstadoTopo.SUBIENDO;
                 }
                 break;
             case ATONTADO:
@@ -85,10 +85,10 @@ public class Topo extends Objeto
                 tiempoAtontado -= delta;
                 if (tiempoAtontado<=0) {
                     tiempoEscondido = MathUtils.random(0.1f,1.5f);
-                    estado = EstadoTopo.ESCONDIDO;
                     sprite.setRotation(0);
                     alturaActual = 0;
                     sprite.setScale(1);
+                    estado = EstadoTopo.ESCONDIDO;
                 }
         }
 
@@ -125,6 +125,8 @@ public class Topo extends Objeto
     public void reset() {
         seEscondio = false;
         vy = 20;
+        sprite.setRotation(0);
+        sprite.setScale(1);
         if (MathUtils.randomBoolean()) {
             estado = EstadoTopo.BAJANDO;
             alturaActual = alturaOriginal;
