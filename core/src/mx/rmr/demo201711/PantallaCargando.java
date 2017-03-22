@@ -81,6 +81,11 @@ class PantallaCargando extends Pantalla
         manager.load("mario/moneda.mp3",Sound.class);
         manager.load("mario/padBack.png", Texture.class);
         manager.load("mario/padKnob.png", Texture.class);
+        manager.load("mario/jumpBtn.png", Texture.class);
+        manager.load("mario/jumpBtnBajo.png", Texture.class);
+        manager.load("comun/btnSalir.png", Texture.class);
+        manager.load("comun/btnPausa.png", Texture.class);
+
     }
 
     private void cargarRecursosMenu() {
@@ -90,6 +95,7 @@ class PantallaCargando extends Pantalla
         manager.load("menu/btnJugarRunnerP.png", Texture.class);
         manager.load("menu/btnJugarWhackAMole.png", Texture.class);
         manager.load("menu/btnJugarWhackAMoleP.png", Texture.class);
+        manager.load("menu/fondoSinFin.jpg", Texture.class);
         manager.load("menu/fondoSinFin.jpg", Texture.class);
     }
 

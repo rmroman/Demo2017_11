@@ -11,16 +11,22 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
 /**
  * Created by Roberto Martínez Román on 24/02/17.
+ *
  */
 
 public class Personaje extends Objeto
 {
-    private final float VELOCIDAD_X = 4;      // Velocidad horizontal
+    private final float VELOCIDAD_X = 2;      // Velocidad horizontal
 
     private Animation<TextureRegion> spriteAnimado;         // Animación caminando
     private float timerAnimacion;                           // Tiempo para cambiar frames de la animación
 
     private EstadoMovimiento estadoMovimiento = EstadoMovimiento.QUIETO;
+
+    // Salto
+    private EstadoSalto estadoSalto = EstadoSalto.EN_PISO;
+    private float alturaSalto;  // altura actual, inicia en cero
+    private float yOriginal;
 
     // Recibe una imagen con varios frames (ver marioSprite.png)
     public Personaje(Texture textura, float x, float y) {
@@ -28,10 +34,9 @@ public class Personaje extends Objeto
         TextureRegion texturaCompleta = new TextureRegion(textura);
         // La divide en 4 frames de 32x64 (ver marioSprite.png)
         TextureRegion[][] texturaPersonaje = texturaCompleta.split(32,64);
-        // Crea la animación con tiempo de 0.15 segundos entre frames.
+        // Crea la animación con tiempo de 0.25 segundos entre frames.
 
-        spriteAnimado = new Animation(0.15f, texturaPersonaje[0][3],
-                texturaPersonaje[0][2], texturaPersonaje[0][1] );
+        spriteAnimado = new Animation(0.15f, texturaPersonaje[0][3], texturaPersonaje[0][1], texturaPersonaje[0][1] );
         // Animación infinita
         spriteAnimado.setPlayMode(Animation.PlayMode.LOOP);
         // Inicia el timer que contará tiempo para saber qué frame se dibuja
@@ -39,6 +44,9 @@ public class Personaje extends Objeto
         // Crea el sprite con el personaje quieto (idle)
         sprite = new Sprite(texturaPersonaje[0][0]);    // QUIETO
         sprite.setPosition(x,y);    // Posición inicial
+
+        // Salto
+        alturaSalto = 0;
     }
 
     // Dibuja el personaje
@@ -50,7 +58,7 @@ public class Personaje extends Objeto
                 timerAnimacion += Gdx.graphics.getDeltaTime();
                 // Frame que se dibujará
                 TextureRegion region = spriteAnimado.getKeyFrame(timerAnimacion);
-                if (estadoMovimiento== EstadoMovimiento.MOV_IZQUIERDA) {
+                if (estadoMovimiento==EstadoMovimiento.MOV_IZQUIERDA) {
                     if (!region.isFlipX()) {
                         region.flip(true,false);
                     }
@@ -76,6 +84,35 @@ public class Personaje extends Objeto
                 moverHorizontal(mapa);
                 break;
         }
+        switch (estadoSalto) {
+            case SUBIENDO:
+            case BAJANDO:
+                moverVertical(mapa);
+                break;
+        }
+    }
+
+    // Realiza el salto
+    private void moverVertical(TiledMap mapa) {
+        float delta = Gdx.graphics.getDeltaTime()*200;
+        switch (estadoSalto) {
+            case SUBIENDO:
+                sprite.setY(sprite.getY()+delta);
+                alturaSalto += delta;
+                if (alturaSalto>=2*sprite.getHeight()) {
+                    estadoSalto = EstadoSalto.BAJANDO;
+                }
+                break;
+            case BAJANDO:
+                sprite.setY(sprite.getY()-delta);
+                alturaSalto -= delta;
+                if (alturaSalto<=0) {
+                    estadoSalto = EstadoSalto.EN_PISO;
+                    alturaSalto = 0;
+                    sprite.setY(yOriginal);
+                }
+                break;
+        }
     }
 
 
@@ -86,7 +123,7 @@ public class Personaje extends Objeto
         // Ejecutar movimiento horizontal
         float nuevaX = sprite.getX();
         // ¿Quiere ir a la Derecha?
-        if ( estadoMovimiento== EstadoMovimiento.MOV_DERECHA) {
+        if ( estadoMovimiento==EstadoMovimiento.MOV_DERECHA) {
             // Obtiene el bloque del lado derecho. Asigna null si puede pasar.
             int x = (int) ((sprite.getX() + 32) / 32);   // Convierte coordenadas del mundo en coordenadas del mapa
             int y = (int) (sprite.getY() / 32);
@@ -107,7 +144,7 @@ public class Personaje extends Objeto
             }
         }
         // ¿Quiere ir a la izquierda?
-        if ( estadoMovimiento== EstadoMovimiento.MOV_IZQUIERDA) {
+        if ( estadoMovimiento==EstadoMovimiento.MOV_IZQUIERDA) {
             int xIzq = (int) ((sprite.getX()) / 32);
             int y = (int) (sprite.getY() / 32);
             // Obtiene el bloque del lado izquierdo. Asigna null si puede pasar.
@@ -133,12 +170,12 @@ public class Personaje extends Objeto
         // Revisar si toca una moneda (pies)
         TiledMapTileLayer capa = (TiledMapTileLayer)mapa.getLayers().get(0);
         int x = (int)(sprite.getX()/32);
-        int y = (int)(sprite.getY()/32);
+        int y = (int)(sprite.getY()/32)+1;
         TiledMapTileLayer.Cell celda = capa.getCell(x,y);
         if (celda!=null ) {
             Object tipo = celda.getTile().getProperties().get("tipo");
             if ( "moneda".equals(tipo) ) {
-                capa.setCell(x,y,null);    // Borra la moneda del mapa
+                //capa.setCell(x,y,null);    // Borra la moneda del mapa
                 capa.setCell(x,y,capa.getCell(0,4)); // Cuadro azul en lugar de la moneda
                 return true;
             }
@@ -156,10 +193,27 @@ public class Personaje extends Objeto
         this.estadoMovimiento = estadoMovimiento;
     }
 
+    // Inicia el salto
+    public void saltar() {
+
+        if (estadoSalto!=EstadoSalto.SUBIENDO && estadoSalto!=EstadoSalto.BAJANDO) {
+            // inicia
+            estadoSalto = EstadoSalto.SUBIENDO;
+            yOriginal = sprite.getY();
+            alturaSalto = 0;
+        }
+    }
+
     public enum EstadoMovimiento {
         INICIANDO,
         QUIETO,
         MOV_IZQUIERDA,
-        MOV_DERECHA
+        MOV_DERECHA,
+    }
+
+    public enum EstadoSalto {
+        SUBIENDO,
+        BAJANDO,
+        EN_PISO
     }
 }
