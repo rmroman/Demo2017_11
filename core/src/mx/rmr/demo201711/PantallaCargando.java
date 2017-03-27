@@ -65,6 +65,7 @@ class PantallaCargando extends Pantalla
 
     private void cargarRecursosRunner() {
         manager.load("runner/fondoRunnerD.jpg", Texture.class);
+        manager.load("mario/marioSprite.png", Texture.class);
     }
 
     private void cargarRecursosWhackAMole() {

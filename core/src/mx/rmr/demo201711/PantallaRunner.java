@@ -12,6 +12,10 @@ import com.badlogic.gdx.math.Vector3;
 
 class PantallaRunner extends Pantalla
 {
+    private final float DELTA_X = 10;    // Desplazamiento del personaje
+    private final float DELTA_Y = 10;
+    private final float UMBRAL = 50; // Para asegurar que hay movimiento
+
     private final Demo juego;
     private final AssetManager manager;
 
@@ -20,9 +24,18 @@ class PantallaRunner extends Pantalla
     private Texture texturaFondo;
 
     // Punteros (dedo para pan horizontal, vertical)
-    private final int CERO = 0;
-    private final int UNO = 1;
-    private int numeroPunteroHorizontal;    // Puede ser 0 o 1
+    private final int INACTIVO = -1;
+    private int punteroHorizontal = INACTIVO;
+    private int punteroVertical = INACTIVO;
+
+    // Coordenadas
+    private float xHorizontal = 0;
+    private float yVertical = 0;
+
+    // Objeto de prueba
+    private Personaje mario;
+    private float dx = 0;
+    private float dy = 0;
 
 
     public PantallaRunner(Demo juego) {
@@ -35,18 +48,26 @@ class PantallaRunner extends Pantalla
     public void show() {
         texturaFondo = manager.get("runner/fondoRunnerD.jpg");
         fondo = new Fondo(texturaFondo);
+        mario = new Personaje((Texture)(manager.get("mario/marioSprite.png")), 50, 50);
 
         Gdx.input.setInputProcessor(new ProcesadorEntrada());
     }
 
     @Override
     public void render(float delta) {
+        // Actualizar
+        actualizarMario();
         borrarPantalla();
         batch.setProjectionMatrix(camara.combined);
 
         batch.begin();
         fondo.dibujar(batch, delta);
+        mario.dibujar(batch);
         batch.end();
+    }
+
+    private void actualizarMario() {
+        mario.sprite.setPosition(mario.sprite.getX()+dx, mario.sprite.getY()+dy);
     }
 
 
@@ -73,8 +94,14 @@ class PantallaRunner extends Pantalla
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
             v.set(screenX, screenY, 0);
             camara.unproject(v);
-            if (v.x < Pantalla.ANCHO) {
+            if (v.x < Pantalla.ANCHO/2 && punteroHorizontal == INACTIVO) {
                 // Horizontal
+                punteroHorizontal = pointer;
+                xHorizontal = v.x;
+            } else if (v.x >= Pantalla.ANCHO/2 && punteroVertical == INACTIVO ) {
+                // Vertical
+                punteroVertical = pointer;
+                yVertical = v.y;
             }
 
             return true;
@@ -82,7 +109,14 @@ class PantallaRunner extends Pantalla
 
         @Override
         public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-            return false;
+            if (pointer == punteroHorizontal) {
+                punteroHorizontal = INACTIVO;
+                dx = 0; // Deja de moverse en x
+            } else if (pointer == punteroVertical) {
+                punteroVertical = INACTIVO;
+                dy = 0; // Deja de moverse en y
+            }
+            return true;
         }
 
         @Override
@@ -90,8 +124,22 @@ class PantallaRunner extends Pantalla
 
             v.set(screenX, screenY, 0);
             camara.unproject(v);
-            Gdx.app.log("touchDragged"," >>>>>>>> pointer="+pointer);
-            return false;
+            if ( pointer == punteroHorizontal && Math.abs(v.x-xHorizontal)>UMBRAL ) {
+                if (v.x > xHorizontal) {
+                    dx = DELTA_X;   // Derecha
+                } else {
+                    dx = -DELTA_X;  // Izquierda
+                }
+                xHorizontal = v.x;
+            } else if ( pointer == punteroVertical && Math.abs(v.y-yVertical)>UMBRAL ) {
+                if (v.y > yVertical) {
+                    dy = DELTA_Y;   // Arriba
+                } else {
+                    dy = -DELTA_Y;  // Abajo
+                }
+                yVertical = v.y;
+            }
+            return true;
         }
 
         @Override
@@ -119,63 +167,4 @@ class PantallaRunner extends Pantalla
             return false;
         }
     }
-
-    /*
-    private class ProcesaGestos implements GestureDetector.GestureListener
-    {
-
-        @Override
-        public boolean touchDown(float x, float y, int pointer, int button) {
-            Gdx.app.log("pan",">>>>>>> touchDown: "+ pointer);
-            return true;
-        }
-
-        @Override
-        public boolean tap(float x, float y, int count, int button) {
-            return false;
-        }
-
-        @Override
-        public boolean longPress(float x, float y) {
-            return false;
-        }
-
-        @Override
-        public boolean fling(float velocityX, float velocityY, int button) {
-            return false;
-        }
-
-        @Override
-        public boolean pan(float x, float y, float deltaX, float deltaY) {
-            if ( x<Pantalla.ANCHO/2) {
-                if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                    Gdx.app.log("pan", deltaX > 0 ? ">>>>>>> " : "<<<<<<<");
-                }
-            }else {
-                Gdx.app.log("pan", deltaY>0?"^^^^^^ ":"__________");
-            }
-            return false;
-        }
-
-        @Override
-        public boolean panStop(float x, float y, int pointer, int button) {
-            return false;
-        }
-
-        @Override
-        public boolean zoom(float initialDistance, float distance) {
-            return false;
-        }
-
-        @Override
-        public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
-            return false;
-        }
-
-        @Override
-        public void pinchStop() {
-
-        }
-    }
-    */
 }
