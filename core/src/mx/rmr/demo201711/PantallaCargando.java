@@ -64,8 +64,7 @@ class PantallaCargando extends Pantalla
     }
 
     private void cargarRecursosRunner() {
-        manager.load("runner/fondoRunnerD.png", Texture.class);
-        manager.load("runner/marioOriginal.tmx", TiledMap.class);
+        manager.load("runner/fondoRunnerD.jpg", Texture.class);
     }
 
     private void cargarRecursosWhackAMole() {

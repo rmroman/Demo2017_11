@@ -4,11 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 
 /**
  * Created by roberto on 23/03/17.
@@ -23,9 +19,11 @@ class PantallaRunner extends Pantalla
     private Fondo fondo;
     private Texture texturaFondo;
 
-    // Mapa
-    private TiledMap mapa;
-    private OrthogonalTiledMapRenderer rendererMapa;
+    // Punteros (dedo para pan horizontal, vertical)
+    private final int CERO = 0;
+    private final int UNO = 1;
+    private int numeroPunteroHorizontal;    // Puede ser 0 o 1
+
 
     public PantallaRunner(Demo juego) {
         super();
@@ -33,16 +31,10 @@ class PantallaRunner extends Pantalla
         manager = juego.getAssetManager();
     }
 
-    private void cargarMapa() {
-        mapa = manager.get("runner/marioOriginal.tmx");
-        rendererMapa = new OrthogonalTiledMapRenderer(mapa, 3.3f, batch);
-    }
-
     @Override
     public void show() {
-        texturaFondo = manager.get("runner/fondoRunnerD.png");
+        texturaFondo = manager.get("runner/fondoRunnerD.jpg");
         fondo = new Fondo(texturaFondo);
-        //cargarMapa();
 
         Gdx.input.setInputProcessor(new ProcesadorEntrada());
     }
@@ -55,9 +47,6 @@ class PantallaRunner extends Pantalla
         batch.begin();
         fondo.dibujar(batch, delta);
         batch.end();
-
-        //rendererMapa.setView(camara);
-        //rendererMapa.render();
     }
 
 
@@ -73,7 +62,7 @@ class PantallaRunner extends Pantalla
 
     @Override
     public void dispose() {
-
+        manager.unload("runner/fondoRunnerD.jpg");
     }
 
     private class ProcesadorEntrada implements InputProcessor
@@ -84,8 +73,11 @@ class PantallaRunner extends Pantalla
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
             v.set(screenX, screenY, 0);
             camara.unproject(v);
-            Gdx.app.log("touchDown"," >>>>>>>> pointer="+pointer);
-            return false;
+            if (v.x < Pantalla.ANCHO) {
+                // Horizontal
+            }
+
+            return true;
         }
 
         @Override
@@ -95,6 +87,10 @@ class PantallaRunner extends Pantalla
 
         @Override
         public boolean touchDragged(int screenX, int screenY, int pointer) {
+
+            v.set(screenX, screenY, 0);
+            camara.unproject(v);
+            Gdx.app.log("touchDragged"," >>>>>>>> pointer="+pointer);
             return false;
         }
 
@@ -123,4 +119,63 @@ class PantallaRunner extends Pantalla
             return false;
         }
     }
+
+    /*
+    private class ProcesaGestos implements GestureDetector.GestureListener
+    {
+
+        @Override
+        public boolean touchDown(float x, float y, int pointer, int button) {
+            Gdx.app.log("pan",">>>>>>> touchDown: "+ pointer);
+            return true;
+        }
+
+        @Override
+        public boolean tap(float x, float y, int count, int button) {
+            return false;
+        }
+
+        @Override
+        public boolean longPress(float x, float y) {
+            return false;
+        }
+
+        @Override
+        public boolean fling(float velocityX, float velocityY, int button) {
+            return false;
+        }
+
+        @Override
+        public boolean pan(float x, float y, float deltaX, float deltaY) {
+            if ( x<Pantalla.ANCHO/2) {
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    Gdx.app.log("pan", deltaX > 0 ? ">>>>>>> " : "<<<<<<<");
+                }
+            }else {
+                Gdx.app.log("pan", deltaY>0?"^^^^^^ ":"__________");
+            }
+            return false;
+        }
+
+        @Override
+        public boolean panStop(float x, float y, int pointer, int button) {
+            return false;
+        }
+
+        @Override
+        public boolean zoom(float initialDistance, float distance) {
+            return false;
+        }
+
+        @Override
+        public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
+            return false;
+        }
+
+        @Override
+        public void pinchStop() {
+
+        }
+    }
+    */
 }
