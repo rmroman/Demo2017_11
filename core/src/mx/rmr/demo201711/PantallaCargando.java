@@ -57,7 +57,15 @@ class PantallaCargando extends Pantalla
             case NIVEL_WHACK_A_MOLE:
                 cargarRecursosWhackAMole();
                 break;
+            case NIVEL_RUNNER:
+                cargarRecursosRunner();
+                break;
         }
+    }
+
+    private void cargarRecursosRunner() {
+        manager.load("runner/fondoRunnerD.png", Texture.class);
+        manager.load("runner/marioOriginal.tmx", TiledMap.class);
     }
 
     private void cargarRecursosWhackAMole() {
@@ -128,6 +136,9 @@ class PantallaCargando extends Pantalla
                     break;
                 case NIVEL_WHACK_A_MOLE:
                     juego.setScreen(new PantallaWhackAMole(juego));
+                    break;
+                case NIVEL_RUNNER:
+                    juego.setScreen(new PantallaRunner(juego));
                     break;
             }
         }

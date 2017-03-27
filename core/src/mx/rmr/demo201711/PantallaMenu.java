@@ -73,6 +73,7 @@ class PantallaMenu extends Pantalla
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
                 // Iniciar juego Runner
+                juego.setScreen(new PantallaCargando(juego, Pantallas.NIVEL_RUNNER));
             }
         });
         escena.addActor(btnPlayRunner);

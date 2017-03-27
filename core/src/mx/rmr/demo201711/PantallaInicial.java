@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 
 class PantallaInicial extends Pantalla
 {
-    private float tiempoVisible = 1.2f;
+    private float tiempoVisible = 0.7f;
 
     // Es la referencia a la aplicación (la única que puede cambiar pantallas)
     private Demo juego;
