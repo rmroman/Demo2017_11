@@ -18,6 +18,10 @@ class Fondo
         x=0;
     }
 
+    public float getX() {
+        return x;
+    }
+
     public void dibujar(SpriteBatch batch, float delta) {
         // Dibujar en posición actual
         batch.draw(textura, x, 0);    // Primer fondo

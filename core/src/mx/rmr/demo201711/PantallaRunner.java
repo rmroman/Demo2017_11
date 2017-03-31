@@ -3,8 +3,18 @@ package mx.rmr.demo201711;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 /**
  * Created by roberto on 23/03/17.
@@ -33,9 +43,12 @@ class PantallaRunner extends Pantalla
     private float yVertical = 0;
 
     // Objeto de prueba
-    private Personaje mario;
+    private MarioRunner mario;
     private float dx = 0;
     private float dy = 0;
+
+    // Para salir
+    private EscenaPausa escenaPausa;
 
 
     public PantallaRunner(Demo juego) {
@@ -48,7 +61,7 @@ class PantallaRunner extends Pantalla
     public void show() {
         texturaFondo = manager.get("runner/fondoRunnerD.jpg");
         fondo = new Fondo(texturaFondo);
-        mario = new Personaje((Texture)(manager.get("mario/marioSprite.png")), 50, 50);
+        mario = new MarioRunner((Texture)(manager.get("mario/marioSprite.png")), ANCHO/2, 70);
 
         Gdx.input.setInputProcessor(new ProcesadorEntrada());
     }
@@ -56,7 +69,8 @@ class PantallaRunner extends Pantalla
     @Override
     public void render(float delta) {
         // Actualizar
-        actualizarMario();
+        //actualizarMario();
+        actualizarSaltoMario(delta);
         borrarPantalla();
         batch.setProjectionMatrix(camara.combined);
 
@@ -64,8 +78,29 @@ class PantallaRunner extends Pantalla
         fondo.dibujar(batch, delta);
         mario.dibujar(batch);
         batch.end();
+
+        // termina
+        if (fondo.getX()<-3800) {   // Solo para probar la salida
+            terminar();
+        }
+        if (escenaPausa!=null) {
+            escenaPausa.draw();
+        }
     }
 
+    private void terminar() {
+        // Activar escenaPausa y pasarle el control
+        if (escenaPausa==null) {
+            escenaPausa = new EscenaPausa(vista, batch);
+        }
+        Gdx.input.setInputProcessor(escenaPausa);
+    }
+
+    private void actualizarSaltoMario(float delta) {
+        mario.actualizar(delta);
+    }
+
+    // Ejercicio anterior, por ahora deshabilitado
     private void actualizarMario() {
         mario.sprite.setPosition(mario.sprite.getX()+dx, mario.sprite.getY()+dy);
     }
@@ -84,6 +119,8 @@ class PantallaRunner extends Pantalla
     @Override
     public void dispose() {
         manager.unload("runner/fondoRunnerD.jpg");
+        manager.unload("mario/marioSprite.png");
+        manager.unload("comun/btnSalir.png");
     }
 
     private class ProcesadorEntrada implements InputProcessor
@@ -103,7 +140,7 @@ class PantallaRunner extends Pantalla
                 punteroVertical = pointer;
                 yVertical = v.y;
             }
-
+            mario.saltar();
             return true;
         }
 
@@ -165,6 +202,39 @@ class PantallaRunner extends Pantalla
         @Override
         public boolean keyTyped(char character) {
             return false;
+        }
+    }
+
+    // La escena que se muestra cuando el juego se pausa
+    // (simplificado, ver la misma escena en PantallaWhackAMole)
+    private class EscenaPausa extends Stage
+    {
+        public EscenaPausa(Viewport vista, SpriteBatch batch) {
+            super(vista, batch);
+            // Crear rectángulo transparente
+            Pixmap pixmap = new Pixmap((int)(ANCHO*0.7f), (int)(ALTO*0.8f), Pixmap.Format.RGBA8888 );
+            pixmap.setColor( 0.1f, 0.1f, 0.1f, 0.65f );
+            pixmap.fillRectangle(0, 0, pixmap.getWidth(), pixmap.getHeight());
+            Texture texturaRectangulo = new Texture( pixmap );
+            pixmap.dispose();
+            Image imgRectangulo = new Image(texturaRectangulo);
+            imgRectangulo.setPosition(0.15f*ANCHO, 0.1f*ALTO);
+            this.addActor(imgRectangulo);
+
+            // Salir
+            Texture texturaBtnSalir = manager.get("comun/btnSalir.png");
+            TextureRegionDrawable trdSalir = new TextureRegionDrawable(
+                    new TextureRegion(texturaBtnSalir));
+            ImageButton btnSalir = new ImageButton(trdSalir);
+            btnSalir.setPosition(ANCHO/2-btnSalir.getWidth()/2, ALTO*0.2f);
+            btnSalir.addListener(new ClickListener(){
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    // Regresa al menú
+                    juego.setScreen(new PantallaCargando(juego,Pantallas.MENU));
+                }
+            });
+            this.addActor(btnSalir);
         }
     }
 }

@@ -21,10 +21,10 @@ public class Personaje extends Objeto
     private Animation<TextureRegion> spriteAnimado;         // Animación caminando
     private float timerAnimacion;                           // Tiempo para cambiar frames de la animación
 
-    private EstadoMovimiento estadoMovimiento = EstadoMovimiento.QUIETO;
+    protected EstadoMovimiento estadoMovimiento = EstadoMovimiento.QUIETO;
 
     // Salto
-    private EstadoSalto estadoSalto = EstadoSalto.EN_PISO;
+    protected EstadoSalto estadoSalto = EstadoSalto.EN_PISO;
     private float alturaSalto;  // altura actual, inicia en cero
     private float yOriginal;
 
@@ -36,7 +36,7 @@ public class Personaje extends Objeto
         TextureRegion[][] texturaPersonaje = texturaCompleta.split(32,64);
         // Crea la animación con tiempo de 0.25 segundos entre frames.
 
-        spriteAnimado = new Animation(0.15f, texturaPersonaje[0][3], texturaPersonaje[0][1], texturaPersonaje[0][1] );
+        spriteAnimado = new Animation(0.1f, texturaPersonaje[0][3], texturaPersonaje[0][2], texturaPersonaje[0][1] );
         // Animación infinita
         spriteAnimado.setPlayMode(Animation.PlayMode.LOOP);
         // Inicia el timer que contará tiempo para saber qué frame se dibuja
@@ -52,6 +52,7 @@ public class Personaje extends Objeto
     // Dibuja el personaje
     public void dibujar(SpriteBatch batch) {
         // Dibuja el personaje dependiendo del estadoMovimiento
+
         switch (estadoMovimiento) {
             case MOV_DERECHA:
             case MOV_IZQUIERDA:
@@ -214,6 +215,7 @@ public class Personaje extends Objeto
     public enum EstadoSalto {
         SUBIENDO,
         BAJANDO,
-        EN_PISO
+        EN_PISO,
+        SALTANDO    // General, puede estar subiendo o bajando
     }
 }
