@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -14,10 +15,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 /**
- * Created by roberto on 23/03/17.
+ * Muestra algunas cartacterísticas de libgdx como:
+ * - Cámara fija, scroll en el fondo
+ * - Touch simultáneo con dos dedos
  */
 
 class PantallaRunner extends Pantalla
@@ -28,12 +32,13 @@ class PantallaRunner extends Pantalla
 
     private final Demo juego;
     private final AssetManager manager;
+    private float tiempoMaximo = 4.0f;
 
     // Fondo
     private Fondo fondo;
     private Texture texturaFondo;
 
-    // Punteros (dedo para pan horizontal, vertical)
+    // Punteros (dedo para paneo horizontal, vertical)
     private final int INACTIVO = -1;
     private int punteroHorizontal = INACTIVO;
     private int punteroVertical = INACTIVO;
@@ -50,6 +55,14 @@ class PantallaRunner extends Pantalla
     // Para salir
     private EscenaPausa escenaPausa;
 
+    // Enemigos (topos :)
+    private Texture texturaHongo;
+    private Array<Hongo> enemigos;
+    private float tiempoEnemigo;    // Tiempo aleatorio para generar un enemigo
+
+    // Proyectiles que lanza mario
+    private Texture texturaBala;
+    private Array<Bala> balas;
 
     public PantallaRunner(Demo juego) {
         super();
@@ -59,7 +72,12 @@ class PantallaRunner extends Pantalla
 
     @Override
     public void show() {
+        enemigos = new Array<>();   // Arreglo de topos
+        balas = new Array<>();
+        tiempoEnemigo = MathUtils.random(1.5f,5.0f);
         texturaFondo = manager.get("runner/fondoRunnerD.jpg");
+        texturaHongo = manager.get("runner/enemigo.png");
+        texturaBala = manager.get("runner/bala.png");
         fondo = new Fondo(texturaFondo);
         mario = new MarioRunner((Texture)(manager.get("mario/marioSprite.png")), ANCHO/2, 70);
 
@@ -71,12 +89,23 @@ class PantallaRunner extends Pantalla
         // Actualizar
         //actualizarMario();
         actualizarSaltoMario(delta);
+        actualizarEnemigos(delta);
+        actualizarBalas(delta);
+
+        // Dibujar
         borrarPantalla();
         batch.setProjectionMatrix(camara.combined);
 
         batch.begin();
         fondo.dibujar(batch, delta);
         mario.dibujar(batch);
+        // Dibujar enemigo
+        for (Hongo hongo : enemigos) {
+            hongo.dibujar(batch);
+        }
+        for (Bala bala : balas) {
+            bala.dibujar(batch);
+        }
         batch.end();
 
         // termina
@@ -85,6 +114,59 @@ class PantallaRunner extends Pantalla
         }
         if (escenaPausa!=null) {
             escenaPausa.draw();
+        }
+    }
+
+    private void actualizarBalas(float delta) {
+        // ¿POR QUÉ CREES QUE SE RECORRE AL REVÉS EL ARREGLO?
+        for(int i=balas.size-1; i>=0; i--) {
+            Bala bala = balas.get(i);
+            bala.mover(delta);
+            if (bala.sprite.getX()>ANCHO) {
+                // Se salió de la pantalla
+                balas.removeIndex(i);
+                break;
+            }
+            // Prueba choque contra todos los enemigos
+            for (int j=enemigos.size-1; j>=0; j--) {
+                Hongo hongo = enemigos.get(j);
+                if (bala.chocaCon(hongo)) {
+                    // Borrar hongo, bala, aumentar puntos, etc.
+                    enemigos.removeIndex(j);
+                    balas.removeIndex(i);
+                    break;  // Siguiente bala, ésta ya no existe
+                }
+            }
+        }
+    }
+
+    private void actualizarEnemigos(float delta) {
+        // Generar nuevo enemigo
+        tiempoEnemigo -= delta;
+        if (tiempoEnemigo<=0) {
+            tiempoEnemigo = MathUtils.random(0.5f, tiempoMaximo);
+            tiempoMaximo -= tiempoMaximo>0.5f?10*delta:0;
+            Hongo hongo = new Hongo(texturaHongo, ANCHO+1, 70*MathUtils.random(1,4));
+            enemigos.add(hongo);
+        }
+        // Actualizar enemigos
+        for (Hongo hongo :enemigos) {
+            hongo.mover(delta);
+        }
+        // Verificar choque
+        for(int k=enemigos.size-1; k>=0; k--) {
+            Hongo hongo = enemigos.get(k);
+            if (hongo.chocaCon(mario)) {
+                // Pierde!!!
+                enemigos.removeIndex(k);
+                // Activar escenaPausa y pasarle el control
+                if (escenaPausa==null) {
+                    escenaPausa = new EscenaPausa(vista, batch);
+                }
+                Gdx.input.setInputProcessor(escenaPausa);
+            } else if (hongo.sprite.getX()<-hongo.sprite.getWidth()) {
+                enemigos.removeIndex(k);
+            }
         }
     }
 
@@ -105,6 +187,12 @@ class PantallaRunner extends Pantalla
         mario.sprite.setPosition(mario.sprite.getX()+dx, mario.sprite.getY()+dy);
     }
 
+    private void disparar() {
+        Bala bala = new Bala(texturaBala,
+                mario.sprite.getX()+mario.sprite.getWidth()/2,
+                mario.sprite.getY()+mario.sprite.getHeight()/2-texturaBala.getHeight()/2);
+        balas.add(bala);
+    }
 
     @Override
     public void pause() {
@@ -120,6 +208,8 @@ class PantallaRunner extends Pantalla
     public void dispose() {
         manager.unload("runner/fondoRunnerD.jpg");
         manager.unload("mario/marioSprite.png");
+        manager.unload("runner/enemigo.png");
+        manager.unload("runner/bala.png");
         manager.unload("comun/btnSalir.png");
     }
 
@@ -131,6 +221,7 @@ class PantallaRunner extends Pantalla
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
             v.set(screenX, screenY, 0);
             camara.unproject(v);
+            /* Para detectar paneo izquierdo-derecho
             if (v.x < Pantalla.ANCHO/2 && punteroHorizontal == INACTIVO) {
                 // Horizontal
                 punteroHorizontal = pointer;
@@ -140,7 +231,13 @@ class PantallaRunner extends Pantalla
                 punteroVertical = pointer;
                 yVertical = v.y;
             }
-            mario.saltar();
+            */
+            // Pantalla izquierda salta, derecha dispara
+            if (v.x<ANCHO/2) {
+                mario.saltar();
+            } else {
+                disparar();
+            }
             return true;
         }
 

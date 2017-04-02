@@ -135,4 +135,8 @@ public class Topo extends Objeto
             alturaActual = 0;
         }
     }
+
+    public void mover(float delta) {
+
+    }
 }

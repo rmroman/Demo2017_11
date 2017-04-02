@@ -2,8 +2,6 @@ package mx.rmr.demo201711;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 
 /**
  * Created by roberto on 31/03/17.
@@ -13,7 +11,7 @@ public class MarioRunner extends Personaje
 {
     // Variables para el salto
     private final float G = 98.1f;  // Gravedad
-    private final float velocidadInicial = 200;  // Velocidad de salida (hacia arriba)
+    private final float velocidadInicial = 250;  // Velocidad de salida (hacia arriba)
     private float ymax;     // Altura máxima
     private float tiempoVuelo;  // Tiempo de vuelo TOTAL
 
