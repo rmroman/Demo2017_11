@@ -55,7 +55,7 @@ class PantallaRunner extends Pantalla
     // Para salir
     private EscenaPausa escenaPausa;
 
-    // Enemigos (topos :)
+    // Enemigos (hongos :)
     private Texture texturaHongo;
     private Array<Hongo> enemigos;
     private float tiempoEnemigo;    // Tiempo aleatorio para generar un enemigo
