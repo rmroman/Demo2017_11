@@ -72,7 +72,7 @@ class PantallaRunner extends Pantalla
 
     @Override
     public void show() {
-        enemigos = new Array<>();   // Arreglo de topos
+        enemigos = new Array<>();   // Arreglo de hongos
         balas = new Array<>();
         tiempoEnemigo = MathUtils.random(1.5f,5.0f);
         texturaFondo = manager.get("runner/fondoRunnerD.jpg");

@@ -1,6 +1,7 @@
 package mx.rmr.demo201711;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.assets.AssetManager;
@@ -21,6 +22,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 /**
  * El juego de WhackAMole
+ *
  */
 public class PantallaWhackAMole extends Pantalla
 {
@@ -62,6 +64,7 @@ public class PantallaWhackAMole extends Pantalla
     // Estado del juego
     private EstadoJuego estado = EstadoJuego.JUGANDO;
     private int marcadorMayor;  // El marcador mayor del juego
+    private String nombreMarcadorMayor; // El nombre del jugador
 
     // Pantallas SECUNDARIAS
     private EscenaPierde escenaPierde;
@@ -100,6 +103,7 @@ public class PantallaWhackAMole extends Pantalla
     private void cargarMarcadorMayor() {
         Preferences preferencias = Gdx.app.getPreferences("marcador");
         marcadorMayor = preferencias.getInteger("mayor",0);
+        nombreMarcadorMayor = preferencias.getString("nombre", "");
     }
 
     /**
@@ -192,7 +196,7 @@ public class PantallaWhackAMole extends Pantalla
         // Botón pausa
         btnPausa.dibujar(batch);
         // Dibuja marcador mayor
-        texto.mostrarMensaje(batch,"Marcador mayor: "+marcadorMayor,0.2f*ANCHO,0.07f*ALTO);
+        texto.mostrarMensaje(batch,"Marcador mayor: "+marcadorMayor+" "+nombreMarcadorMayor,0.2f*ANCHO,0.07f*ALTO);
     }
 
     // Actualiza la posición de los objetos en pantalla
@@ -215,7 +219,9 @@ public class PantallaWhackAMole extends Pantalla
                     if (escenaPierde==null) {
                         escenaPierde = new EscenaPierde(vista, batch);
                     }
+                    escenaPierde.verificarMarcadorAlto();
                     Gdx.input.setInputProcessor(escenaPierde);
+                    break;  // No probar otros topos, ya perdió :(
                 }
             }
         }
@@ -243,9 +249,6 @@ public class PantallaWhackAMole extends Pantalla
     public void dispose() {
         arrHoyos.clear();
         arrTopos.clear();
-        /*texturaFondo.dispose();
-        texturaTopo.dispose();
-        texturaHoyo.dispose();*/
         manager.unload("whackamole/fondoPasto.jpg");
         manager.unload("whackamole/hoyo.png");
         manager.unload("whackamole/mole.png");
@@ -261,12 +264,6 @@ public class PantallaWhackAMole extends Pantalla
     @Override
     public void hide() {
         super.hide();
-        // Guarda el marcador mayor
-        if (puntos>=marcadorMayor) {
-            Preferences preferences = Gdx.app.getPreferences("marcador");
-            preferences.putInteger("mayor", puntos);
-            preferences.flush();
-        }
     }
 
     // Para reintentar el juego
@@ -369,7 +366,7 @@ public class PantallaWhackAMole extends Pantalla
             pixmap.dispose();
             this.addActor(new Image(texturaCirculo));
 
-            // Agregar botones salir y reintentar
+            // Agregar botón salir
             Texture texturabtnSalir = manager.get("whackamole/btnSalir.png");
             TextureRegionDrawable trdSalir = new TextureRegionDrawable(
                     new TextureRegion(texturabtnSalir));
@@ -385,7 +382,7 @@ public class PantallaWhackAMole extends Pantalla
             this.addActor(btnSalir);
 
             // Reintentar
-            // Agregar botones salir y reintentar
+            // Agregar botón reintentar
             Texture texturabtnReintentar = manager.get("whackamole/btnReintentar.png");
             TextureRegionDrawable trdReintentar = new TextureRegionDrawable(
                     new TextureRegion(texturabtnReintentar));
@@ -399,11 +396,32 @@ public class PantallaWhackAMole extends Pantalla
                     mazos = 5;
                     estado = EstadoJuego.JUGANDO;
                     reiniciarObjetos();
+                    cargarMarcadorMayor();
                     // Regresa el control a la pantalla
                     Gdx.input.setInputProcessor(procesadorEntrada);
                 }
             });
             this.addActor(btnReintentar);
+        }
+
+        public void verificarMarcadorAlto() {
+            if (puntos>=marcadorMayor) { // Marcador alto??
+                Input.TextInputListener listener = new Input.TextInputListener() {
+                    @Override
+                    public void input(String text) {
+                        // Guarda el mejor marcador con el nombre del jugador
+                        Preferences preferencias = Gdx.app.getPreferences("marcador");
+                        preferencias.putInteger("mayor", puntos);
+                        preferencias.putString("nombre", text);
+                        preferencias.flush();
+                    }
+
+                    @Override
+                    public void canceled() {
+                    }
+                };
+                Gdx.input.getTextInput(listener, "Nuevo record, nombre:", nombreMarcadorMayor, "");
+            }
         }
     }
 
@@ -455,4 +473,5 @@ public class PantallaWhackAMole extends Pantalla
             this.addActor(btnReintentar);
         }
     }
+
 }

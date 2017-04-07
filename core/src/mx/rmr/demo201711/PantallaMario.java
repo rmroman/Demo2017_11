@@ -37,6 +37,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
  * Created by roberto on 21/02/17.
  * Agrega HUD para el joystick y marcador
  * Audio
+ *
+ * AGREGAR UN TEXTFIELD PARA CAPTURAR EL NOMBRE DEL USUARIO
  */
 
 public class PantallaMario extends Pantalla
