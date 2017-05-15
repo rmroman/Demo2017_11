@@ -3,10 +3,12 @@ buildscript {
         mavenLocal()
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
     }
+
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
-        classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.0'
+        classpath 'com.android.tools.build:gradle:2.3.2'
+        classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.1'
     }
 }
 
@@ -18,7 +20,7 @@ allprojects {
     ext {
         appName = "Demo2017_11"
         gdxVersion = '1.9.6'
-        roboVMVersion = '2.3.0'
+        roboVMVersion = '2.3.1'
         box2DLightsVersion = '1.4'
         ashleyVersion = '1.7.0'
         aiVersion = '1.8.0'
@@ -66,14 +68,19 @@ project(":ios") {
     robovm {
         // Find this value by running:
         // security find-identity -v -p codesigning
-        iosSignIdentity = "F41A0357C816402BADB8D3ADAE149E6C3591AE83"
-        //iosSignIdentity = "6ee10f7f-4244-427d-971c-3608c9e4a8a8"
+        // ESTE funciona Mayo/14/2017 para Telefono
+        iosSignIdentity = "A66498945697CAA79451DF4D223FA9F3476E2482"
+
+        // Este para crea el IPA 14/mayo/2017
+        //iosSignIdentity = "FAB5F0BDFB48861B92810B034C42995B6C6FA316"
+
 
         // Find this value by reading the files in
         // ~/Library/MobileDevice/Provisioning Profiles/
         // and picking the base name of the one corresponding to your
         // production profile.
-        iosProvisioningProfile = "b30da52b-acbe-473e-857f-04c423525f58"
+        // PARECE QUE LO SELECCIONA DE MANERA AUTOMATICA
+        //iosProvisioningProfile = "ec6b1879-5f63-4e0e-98cf-a98e9282fad7"
 
         iosSkipSigning = false
     }

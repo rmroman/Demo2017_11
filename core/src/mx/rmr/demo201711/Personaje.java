@@ -130,7 +130,7 @@ public class Personaje extends Objeto
             int y = (int) (sprite.getY() / 32);
             TiledMapTileLayer.Cell celdaDerecha = capa.getCell(x, y);
             if (celdaDerecha != null) {
-                Object tipo = (String) celdaDerecha.getTile().getProperties().get("tipo");
+                Object tipo = celdaDerecha.getTile().getProperties().get("tipo");
                 if (!"ladrillo".equals(tipo)) {
                     celdaDerecha = null;  // Puede pasar
                 }
@@ -151,7 +151,7 @@ public class Personaje extends Objeto
             // Obtiene el bloque del lado izquierdo. Asigna null si puede pasar.
             TiledMapTileLayer.Cell celdaIzquierda = capa.getCell(xIzq, y);
             if (celdaIzquierda != null) {
-                Object tipo = (String) celdaIzquierda.getTile().getProperties().get("tipo");
+                Object tipo = celdaIzquierda.getTile().getProperties().get("tipo");
                 if (!"ladrillo".equals(tipo)) {
                     celdaIzquierda = null;  // Puede pasar
                 }
